@@ -1,18 +1,22 @@
 // The World in One Day — Thursday, 26 November 2026.
 //
-// The front page is already composed and bundled as entry.png next to
-// this file. All this program does is place an exact copy of that image
-// into the output directory the harness points at, so every run yields
-// the same bytes — no generation, no randomness, no network.
+// The front page is pre-rendered and bundled next to this file as
+// entry.png. This program's only job is to place an exact copy of it in
+// the make.fun output directory, so every run produces the same bytes.
 
 import { copyFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Directory holding this script (and the bundled entry.png).
 const here = dirname(fileURLToPath(import.meta.url));
-const source = join(here, "entry.png");
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-mkdirSync(outDir, { recursive: true });
+// make.fun tells us where to write via MAKEFUN_OUTPUT_DIR; /output is
+// the fallback when the variable is not set.
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 
-copyFileSync(source, join(outDir, "entry.png"));
+mkdirSync(outputDir, { recursive: true });
+copyFileSync(join(here, "entry.png"), join(outputDir, "entry.png"));
+
+// Confirm where the page landed, so a run's output is easy to find.
+console.log(`entry.png written to ${join(outputDir, "entry.png")}`);
